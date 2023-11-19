@@ -1,0 +1,134 @@
+<div class="grid">
+    <div class="col-12">
+        <div class="card px-6 py-6">
+            <p-toast></p-toast>
+            <p-toolbar styleClass="mb-4">
+                <ng-template pTemplate="left">
+                    <div class="my-2">
+                        <button pButton pRipple label="Adicionar" icon="pi pi-plus" class="p-button-success mr-2" (click)="openNew()"></button>
+                        <button pButton pRipple label="Exportar CSV"
+                         icon="pi pi-upload" class="p-button-help"
+                         (click)="dt.exportCSV()"></button>
+                    </div>
+                </ng-template>
+
+                <ng-template pTemplate="right">
+                    <p-fileUpload mode="basic" accept="image/*" [maxFileSize]="1000000" label="Import" chooseLabel="Import" class="mr-2 inline-block"></p-fileUpload>
+                    <button pButton pRipple label="Export" icon="pi pi-upload" class="p-button-help" (click)="dt.exportCSV()"></button>
+                </ng-template>
+            </p-toolbar>
+
+            <p-table #dt [value]="items" [columns]="cols" responsiveLayout="scroll" [rows]="10" [globalFilterFields]="['name','descricao','categoria','preco', 'quantidade']" [paginator]="true" [rowsPerPageOptions]="[10,20,30]" [showCurrentPageReport]="true" currentPageReportTemplate="Mostrando {first} de {last} do {totalRecords} registros" selectionMode="multiple" [rowHover]="true" dataKey="id">
+                <ng-template pTemplate="caption">
+                    <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+                        <h5 class="m-0">Produtos</h5>
+                        <span class="block mt-2 md:mt-0 p-input-icon-left">
+                            <i class="pi pi-search"></i>
+                            <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Procurar..."  class="w-full sm:w-auto"/>
+                        </span>
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th pSortableColumn="name">Nome <p-sortIcon field="name"></p-sortIcon></th>
+                        <th pSortableColumn="descricao">Descrição <p-sortIcon field="descricao"></p-sortIcon></th>
+                        <th pSortableColumn="categoria">Categoria <p-sortIcon field="categoria"></p-sortIcon></th>
+                        <th pSortableColumn="preco">Preço <p-sortIcon field="preco"></p-sortIcon></th>
+                        <th pSortableColumn="quantidade">Quantidade <p-sortIcon field="quantidade"></p-sortIcon></th>
+                        <th></th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-item>
+                    <tr>
+                        <td style="width:14%; min-width:10rem;"><span class="p-column-title">Nome</span>
+                            {{item.name }}
+                        </td>
+                        <td style="width:14%; min-width:10rem;">
+                            <span class="p-column-title">Descric Doc</span>
+                            {{item.descricao}}
+                        </td>
+                        <td style="width:14%; min-width:8rem;">
+                            <span class="p-column-title">Categor Doc</span>
+                            {{item.categoria}}
+                        </td>
+                        <td style="width:14%; min-width:10rem;">
+                            <span class="p-column-title">Preco Doc</span>
+                            {{item.preco | currency:'BRL'}}
+                        </td>
+                        <td style="width:14%; min-width:10rem;">
+                            <span class="p-column-title">Qtd Doc</span>
+                            {{item.quantidade}}
+                        </td>
+
+                        <td>
+                            <div class="flex">
+                                <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2" (click)="editBillPay(item)"></button>
+                                <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-warning" (click)="deleteBillPay(item)"></button>
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+
+        <p-dialog [(visible)]="itemDialog" [style]="{width: '450px'}" header="Contas a Pagar" [modal]="true" class="p-fluid">
+            <ng-template pTemplate="content">
+                <form [formGroup]="form" (ngSubmit)="onSaveForm()">
+                <div class="field">
+                    <label for="name">Nome</label>
+                    <input type="text" formControlName="name" placeholder="Digite o nome" pInputText id="name" required autofocus/>
+                    <small *ngIf="!this.form.get('name')?.valid && (this.form.get('name')?.dirty || this.form.get('name')?.touched)" class="ng-dirty ng-invalid">
+                        O campo nome é obrigatório.
+                    </small>
+                </div>
+                <div class="field">
+                    <label for="description">Descrição</label>
+                    <input type="text" formControlName="descricao" placeholder="Digite a descrição" pInputText id="name" required autofocus/>
+                    <small *ngIf="!this.form.get('descricao')?.valid && (this.form.get('descricao')?.dirty || this.form.get('descricao')?.touched)" class="ng-dirty ng-invalid">
+                        O campo descrição é obrigatório.
+                    </small>
+                </div>
+                <div class="field">
+                    <label for="name">Categoria</label>
+                    <input type="text" formControlName="categoria" placeholder="Digite a categoria" pInputText id="name" required autofocus/>
+                    <small *ngIf="!this.form.get('categoria')?.valid && (this.form.get('categoria')?.dirty || this.form.get('categoria')?.touched)" class="ng-dirty ng-invalid">
+                        O campo categoria é obrigatório.
+                    </small>
+                </div>
+                <div class="formgrid grid">
+                    <div class="field col">
+                        <label for="preco">Preço</label>
+                        <p-inputNumber id="preco" formControlName="preco" placeholder="Digite o preço" mode="currency" currency="BRL" locale="pt-BR"></p-inputNumber>
+                        <small *ngIf="!this.form.get('preco')?.valid && (this.form.get('preco')?.dirty || this.form.get('preco')?.touched)" class="ng-dirty ng-invalid">
+                            O campo preço é obrigatório.
+                        </small>
+                    </div>
+                    <div class="field col">
+                        <label for="quantidade">Quantidade</label>
+                        <p-inputNumber id="quantidade" formControlName="quantidade" placeholder="Digite a quantidade"></p-inputNumber>
+                        <small *ngIf="!this.form.get('quantidade')?.valid && (this.form.get('quantidade')?.dirty || this.form.get('quantidade')?.touched)" class="ng-dirty ng-invalid">
+                            O campo quantidade é obrigatório.
+                        </small>
+                    </div>
+                </div>
+                </form>
+            </ng-template>
+
+            <ng-template pTemplate="footer">
+                <button pButton pRipple label="Cancelar" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
+                <button pButton pRipple label="Salvar" icon="pi pi-check" class="p-button-text" (click)="onSaveForm()"></button>
+            </ng-template>
+        </p-dialog>
+
+        <p-dialog [(visible)]="deleteItemDialog" header="Confirm" [modal]="true" [style]="{width:'450px'}">
+            <div class="flex align-items-center justify-content-center">
+                <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+                <span *ngIf="item">Você realmente deseja deletar <b>{{item.name}}</b>?</span>
+            </div>
+            <ng-template pTemplate="footer">
+                <button pButton pRipple icon="pi pi-times" class="p-button-text" label="Não" (click)="deleteItemDialog = false"></button>
+                <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Sim" (click)="confirmDeleteBillPay()"></button>
+            </ng-template>
+        </p-dialog>
+    </div>
+</div>
